@@ -268,7 +268,11 @@ public struct TIFFAttributes {
         rowsPerStrip    = try read(tag: TIFFTAG_ROWSPERSTRIP)
         photometric     = try read(tag: TIFFTAG_PHOTOMETRIC)
         planarconfig    = try read(tag: TIFFTAG_PLANARCONFIG)
-        orientation     = try read(tag: TIFFTAG_ORIENTATION)
+        do {
+            orientation     = try read(tag: TIFFTAG_ORIENTATION)
+        } catch {
+            // missing orientation
+        }
         width           = try read(tag: TIFFTAG_IMAGEWIDTH)
         height          = try read(tag: TIFFTAG_IMAGELENGTH)
         if let es = try? readSamples() {
@@ -400,7 +404,7 @@ public struct TIFFAttributes {
                                          UInt32(bitPattern: tag),
                                          &value)
             guard result == 1 else {
-                throw TIFFError.SetField(tag)
+                throw TIFFError.GetField(tag)
             }
             return value as! T
         case is UInt32.Type:
@@ -409,7 +413,7 @@ public struct TIFFAttributes {
                                          UInt32(bitPattern: tag),
                                          &value)
             guard result == 1 else {
-                throw TIFFError.SetField(tag)
+                throw TIFFError.GetField(tag)
             }
             return value as! T
         default:

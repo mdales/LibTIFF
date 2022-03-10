@@ -2,5 +2,5 @@ module CLibTIFF [system] {
 	header "tiff.h"
 	header "tiffio.h"
 	export *
-	link "CLibTIFF"
+
 }
