@@ -69,8 +69,8 @@ public class TIFFImage<Channel> : ImageProtocol {
             throw TIFFError.IncorrectChannelSize(attributes.bitsPerSample)
         }
         let size = Int(attributes.width) * Int(attributes.height)
-        let byteCount = size * Int(attributes.bitsPerSample)
-        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: byteCount)
+        let elementCount = size * Int(attributes.samplesPerPixel)
+        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: elementCount)
         try read()
     }
 
@@ -98,9 +98,8 @@ public class TIFFImage<Channel> : ImageProtocol {
                                          orientation: UInt32(ORIENTATION_TOPLEFT),
                                          extraSamples: extraSamples)
         let pixelCount = size.width * size.height
-        let byteCount = pixelCount * Int(attributes.bitsPerSample)
-        
-        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: byteCount)
+        let elementCount = pixelCount * Int(attributes.samplesPerPixel)
+        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: elementCount)
     }
 
     public init(size: Size, hasAlpha: Bool = false) {
@@ -123,8 +122,8 @@ public class TIFFImage<Channel> : ImageProtocol {
                                      orientation: UInt32(ORIENTATION_TOPLEFT),
                                      extraSamples: extraSamples)
         let pixelCount = size.width * size.height
-        let byteCount = pixelCount * Int(attributes.bitsPerSample)
-        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: byteCount)
+        let elementCount = pixelCount * Int(attributes.samplesPerPixel)
+        self.buffer = UnsafeMutablePointer<Channel>.allocate(capacity: elementCount)
     }
 
 
