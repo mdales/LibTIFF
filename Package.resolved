@@ -2,6 +2,15 @@
   "object": {
     "pins": [
       {
+        "package": "Geometry",
+        "repositoryURL": "https://github.com/mrwerdo/Geometry",
+        "state": {
+          "branch": "master",
+          "revision": "dbe9f6ff77821beb29e746071d81feed084da540",
+          "version": null
+        }
+      },
+      {
         "package": "SwiftCLI",
         "repositoryURL": "https://github.com/jakeheis/SwiftCLI",
         "state": {

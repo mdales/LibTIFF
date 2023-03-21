@@ -1,4 +1,4 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.5
 import PackageDescription
 
 let package = Package(
@@ -7,8 +7,8 @@ let package = Package(
         .library(name: "LibTIFF", targets: ["LibTIFF"])
     ],
     dependencies: [
-        // .package(url: "https://github.com/mrwerdo/Geometry", from: "1.0.0")
-        .package(path: "../Geometry"),
+        .package(url: "https://github.com/mrwerdo/Geometry", branch: "master")
+        //.package(path: "../Geometry"),
     ],
     targets: [
         .target(name: "CLibTIFF", exclude: ["README", "VERSION", "ChangeLog", "COPYRIGHT", "mkg3states.c"]),
