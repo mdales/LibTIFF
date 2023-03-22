@@ -5,57 +5,56 @@
   from this file in your programs.
 */
 
+/* clang-format off */
+/* clang-format disabled because CMake scripts are very sensitive to the
+ * formatting of this file. configure_file variables of type "@VAR@" are
+ * modified by clang-format and won't be substituted.
+ */
 
 #ifndef _TIFFCONF_
 #define _TIFFCONF_
 
+
+#include <stddef.h>
+#include <stdint.h>
+#include <inttypes.h>
+
+
 /* Signed 16-bit type */
-#define TIFF_INT16_T signed short
+/* #undef TIFF_INT16_T */
 
 /* Signed 32-bit type */
-#define TIFF_INT32_T signed int
+/* #undef TIFF_INT32_T */
 
 /* Signed 64-bit type */
-#define TIFF_INT64_T signed long
+/* #undef TIFF_INT64_T */
 
 /* Signed 8-bit type */
-#define TIFF_INT8_T signed char
+/* #undef TIFF_INT8_T */
 
 /* Unsigned 16-bit type */
-#define TIFF_UINT16_T unsigned short
+/* #undef TIFF_UINT16_T */
 
 /* Unsigned 32-bit type */
-#define TIFF_UINT32_T unsigned int
+/* #undef TIFF_UINT32_T */
 
 /* Unsigned 64-bit type */
-#define TIFF_UINT64_T unsigned long
+/* #undef TIFF_UINT64_T */
 
 /* Unsigned 8-bit type */
-#define TIFF_UINT8_T unsigned char
+/* #undef TIFF_UINT8_T */
 
 /* Signed size type */
-#define TIFF_SSIZE_T signed long
-
-/* Pointer difference type */
-#define TIFF_PTRDIFF_T ptrdiff_t
-
-/* Define to 1 if the system has the type `int16'. */
-/* #undef HAVE_INT16 */
-
-/* Define to 1 if the system has the type `int32'. */
-/* #undef HAVE_INT32 */
-
-/* Define to 1 if the system has the type `int8'. */
-/* #undef HAVE_INT8 */
+#define TIFF_SSIZE_T int64_t
 
 /* Compatibility stuff. */
 
-/* Define as 0 or 1 according to the floating point format suported by the
+/* Define as 0 or 1 according to the floating point format supported by the
    machine */
 #define HAVE_IEEEFP 1
 
 /* Set the native cpu bit order (FILLORDER_LSB2MSB or FILLORDER_MSB2LSB) */
-#define HOST_FILLORDER FILLORDER_LSB2MSB
+#define HOST_FILLORDER FILLORDER_MSB2LSB
 
 /* Native cpu byte order: 1 if big-endian (Motorola) or 0 if little-endian
    (Intel) */
@@ -69,6 +68,9 @@
 
 /* Support JBIG compression (requires JBIG-KIT library) */
 /* #undef JBIG_SUPPORT */
+
+/* Support LERC compression */
+/* #undef LERC_SUPPORT */
 
 /* Support LogLuv high dynamic range encoding */
 #define LOGLUV_SUPPORT 1
@@ -87,16 +89,19 @@
 #define PACKBITS_SUPPORT 1
 
 /* Support Pixar log-format algorithm (requires Zlib) */
-/* #undef PIXARLOG_SUPPORT */
+#define PIXARLOG_SUPPORT 1
 
 /* Support ThunderScan 4-bit RLE algorithm */
 #define THUNDER_SUPPORT 1
 
 /* Support Deflate compression */
-/* #undef ZIP_SUPPORT */
+#define ZIP_SUPPORT 1
+
+/* Support libdeflate enhanced compression */
+/* #undef LIBDEFLATE_SUPPORT */
 
 /* Support strip chopping (whether or not to convert single-strip uncompressed
-   images to mutiple strips of ~8Kb to reduce memory usage) */
+   images to multiple strips of ~8Kb to reduce memory usage) */
 #define STRIPCHOP_DEFAULT TIFF_STRIPCHOP
 
 /* Enable SubIFD tag (330) support */
@@ -127,3 +132,5 @@
 #define IPTC_SUPPORT
 
 #endif /* _TIFFCONF_ */
+
+/* clang-format on */
