@@ -19,15 +19,16 @@ public enum TIFFError : Error {
     case InternalInconsistancy
     case InvalidReference
     case IncorrectChannelSize(UInt32)
+    case WrongMode
 }
 
 public class TIFFImage<Channel> : ImageProtocol {
-    /// Stores a reference to the image handle (The contents is of type 
+    /// Stores a reference to the image handle (The contents is of type
     /// `TIFF*` in C)
     fileprivate var tiffref: OpaquePointer?
     /// Stores the full path of the file.
     public private(set) var path: String?
-    /// Accesses the attributes of the TIFF file. 
+    /// Accesses the attributes of the TIFF file.
     public var attributes: TIFFAttributes
     /// The size of the image (in pixels). If you want to resize the image, then
     /// you should create a new one.
@@ -44,7 +45,7 @@ public class TIFFImage<Channel> : ImageProtocol {
     ///     When y=., ..., ...,           ..., xN
     ///     When y=K, x1, x2, x3, x4, x5, ..., xN
     ///
-    public private(set) var buffer: UnsafeMutablePointer<Channel> 
+    public private(set) var buffer: UnsafeMutablePointer<Channel>
 
     public var hasAlpha: Bool {
         // TODO: This is lazy and probably incorrect.
@@ -86,7 +87,7 @@ public class TIFFImage<Channel> : ImageProtocol {
             extraSamples = [UInt16(EXTRASAMPLE_ASSOCALPHA)]
         } else {
             extraSamples = []
-        } 
+        }
         let bps = UInt32(MemoryLayout<Channel>.stride * 8)
         self.attributes = try TIFFAttributes(writingAt: ptr,
                                          size: size,
@@ -281,14 +282,14 @@ public struct TIFFAttributes {
         }
     }
 
-    init(writingAt tiffref: OpaquePointer? = nil, 
-         size: Size, 
-         bitsPerSample: UInt32, 
-         samplesPerPixel: UInt32, 
-         rowsPerStrip: UInt32, 
-         photometric: UInt32, 
+    init(writingAt tiffref: OpaquePointer? = nil,
+         size: Size,
+         bitsPerSample: UInt32,
+         samplesPerPixel: UInt32,
+         rowsPerStrip: UInt32,
+         photometric: UInt32,
          planarconfig: UInt32,
-         orientation: UInt32, 
+         orientation: UInt32,
          extraSamples: [UInt16]) throws {
 
         self.tiffref = tiffref
@@ -327,7 +328,7 @@ public struct TIFFAttributes {
 
     init(writingAt tiffref: OpaquePointer, coping attributes: TIFFAttributes) throws {
         self.tiffref = tiffref
-        
+
         self.tiffref = tiffref
         self.bitsPerSample      = attributes.bitsPerSample
         self.samplesPerPixel    = attributes.samplesPerPixel
@@ -370,12 +371,12 @@ public struct TIFFAttributes {
         guard let ref = self.tiffref else {
             throw TIFFError.InvalidReference
         }
-            
+
         let result: Int32
         switch value {
         case is UInt16:
-            result = TIFFSetField_uint16(ref, 
-                                         UInt32(bitPattern: tag), 
+            result = TIFFSetField_uint16(ref,
+                                         UInt32(bitPattern: tag),
                                          value as! UInt16)
         case is UInt32:
             result = TIFFSetField_uint32(ref,
@@ -441,7 +442,7 @@ public struct TIFFAttributes {
         } else {
             throw TIFFError.GetField(TIFFTAG_EXTRASAMPLES)
         }
-        return samples 
+        return samples
     }
 
     mutating func write(samples: [UInt16]) throws {
