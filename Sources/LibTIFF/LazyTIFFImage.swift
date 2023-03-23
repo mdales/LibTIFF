@@ -19,7 +19,7 @@ enum LazyTIFFImageError: Error {
 public class LazyTIFFImage<Channel> {
 	/// Stores a reference to the image handle (The contents is of type
 	/// `TIFF*` in C)
-	fileprivate var tiffref: OpaquePointer?
+	internal var tiffref: OpaquePointer?
 	/// Stores the full path of the file.
 	public private(set) var path: String?
 	/// Accesses the attributes of the TIFF file.
