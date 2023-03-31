@@ -22,6 +22,10 @@ int TIFFSetField_uint16(TIFF *tif, ttag_t tag, uint16_t v);
 int TIFFSetField_ExtraSample(TIFF *tif, uint16_t count, uint16_t *types);
 int TIFFGetField_ExtraSample(TIFF *tif, uint16_t *count, uint16_t *types[]);
 
+int TIFFSetField_CustomDataAscii(TIFF *tif, ttag_t tag, void *ptr);
+int TIFFSetField_CustomDataArray(TIFF *tif, ttag_t tag, uint16_t count, void *ptr);
 int TIFFGetField_CustomDataArray(TIFF *tif, ttag_t tag, uint16_t *count, void *ptr);
+
+int SetGeoTIFFFields(TIFF *tif);
 
 #endif /* _SWIFT_WRAPPER_ */

@@ -2,13 +2,23 @@
 import CLibTIFF
 
 public struct Point {
-	let x: Int
-	let y: Int
+	public let x: Int
+	public let y: Int
+
+	public init(x: Int, y: Int) {
+		self.x = x
+		self.y = y
+	}
 }
 
 public struct Area {
-	let origin: Point
-	let size: Size
+	public let origin: Point
+	public let size: Size
+
+	public init (origin: Point, size: Size) {
+		self.origin = origin
+		self.size = size
+	}
 }
 
 enum LazyTIFFImageError: Error {
