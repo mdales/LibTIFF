@@ -24,6 +24,7 @@ public struct Area {
 enum LazyTIFFImageError: Error {
 	case AreaOutOfBounds
 	case PartialScanlineUpdatesNotPossible
+	case UnsupportedType
 }
 
 public class LazyTIFFImage<Channel> {
@@ -80,15 +81,29 @@ public class LazyTIFFImage<Channel> {
 			extraSamples = []
 		}
 		let bps = UInt32(MemoryLayout<Channel>.stride * 8)
+
+		// obvious bodge...
+		let photometric = samplesPerPixel == 1 ? PHOTOMETRIC_MINISBLACK : PHOTOMETRIC_RGB
+
 		self.attributes = try TIFFAttributes(writingAt: ptr,
 										 size: size,
 										 bitsPerSample: bps,
 										 samplesPerPixel: UInt32(samplesPerPixel),
 										 rowsPerStrip: 1,
-										 photometric: UInt32(PHOTOMETRIC_RGB),
+										 photometric: UInt32(photometric),
 										 planarconfig: UInt32(PLANARCONFIG_CONTIG),
 										 orientation: UInt32(ORIENTATION_TOPLEFT),
 										 extraSamples: extraSamples)
+		switch Channel.self {
+			case is Double.Type:
+				try self.attributes.set(tag: TIFFTAG_SAMPLEFORMAT, with: UInt16(SAMPLEFORMAT_IEEEFP))
+			case is UInt8.Type, is UInt16.Type, is UInt32.Type, is UInt64.Type:
+				try self.attributes.set(tag: TIFFTAG_SAMPLEFORMAT, with: UInt16(SAMPLEFORMAT_UINT))
+			case is Int8.Type, is Int16.Type, is Int32.Type, is Int64.Type:
+				try self.attributes.set(tag: TIFFTAG_SAMPLEFORMAT, with: UInt16(SAMPLEFORMAT_INT))
+			default:
+				throw LazyTIFFImageError.UnsupportedType
+		}
 	}
 
 	deinit {
@@ -114,7 +129,7 @@ public class LazyTIFFImage<Channel> {
 		}
 	}
 
-	public func read(_ area: Area) throws -> UnsafePointer<Channel> {
+	public func read(_ area: Area) throws -> UnsafeBufferPointer<Channel> {
 		guard let ref = tiffref else {
 			throw TIFFError.InvalidReference
 		}
@@ -131,7 +146,8 @@ public class LazyTIFFImage<Channel> {
 		}
 
 		let elementCount = area.size.width * area.size.height * Int(attributes.samplesPerPixel)
-		let buffer = UnsafeMutablePointer<Channel>.allocate(capacity: elementCount)
+		let buffer = UnsafeMutableBufferPointer<Channel>.allocate(capacity: elementCount)
+		let pointer = buffer.baseAddress!
 
 		// Don't try to be clever here, just get something working
 		// and we can optimise things later!
@@ -143,12 +159,11 @@ public class LazyTIFFImage<Channel> {
 			guard TIFFReadScanline(ref, linebuffer, UInt32(yoffset), 0) == 1 else {
 				throw TIFFError.ReadScanline
 			}
-			let target = buffer.advanced(by: yoffset * area.size.width * Int(attributes.samplesPerPixel))
+			let target = pointer.advanced(by: line * area.size.width * Int(attributes.samplesPerPixel))
 			let src = linebuffer.advanced(by: area.origin.x * Int(attributes.samplesPerPixel))
-			target.assign(from:src, count: area.size.width * Int(attributes.samplesPerPixel))
+			target.update(from:src, count: area.size.width * Int(attributes.samplesPerPixel))
 		}
-
-		return UnsafePointer<Channel>(buffer)
+		return UnsafeBufferPointer<Channel>(buffer)
 	}
 
 	// TODO: Ideally this would be an UnsafePointer<Channel>, but it seems LibTIFF expects a mutable pointer
@@ -162,10 +177,10 @@ public class LazyTIFFImage<Channel> {
 		}
 
 		let size = self.size
-		if (area.origin.x + area.size.width) > size.width {
+		guard (area.origin.x + area.size.width) <= size.width else {
 			throw LazyTIFFImageError.AreaOutOfBounds
 		}
-		if (area.origin.y + area.size.height) > size.height {
+		guard (area.origin.y + area.size.height) <= size.height else {
 			throw LazyTIFFImageError.AreaOutOfBounds
 		}
 
