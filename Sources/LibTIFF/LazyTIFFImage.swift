@@ -25,6 +25,7 @@ enum LazyTIFFImageError: Error {
 	case AreaOutOfBounds
 	case PartialScanlineUpdatesNotPossible
 	case UnsupportedType
+	case NoBaseAddress
 }
 
 public class LazyTIFFImage<Channel> {
@@ -168,12 +169,15 @@ public class LazyTIFFImage<Channel> {
 
 	// TODO: Ideally this would be an UnsafePointer<Channel>, but it seems LibTIFF expects a mutable pointer
 	// as part of the call to TIFFWriteScanline
-	public func write(area: Area, buffer: UnsafeMutablePointer<Channel>) throws {
+	public func write(area: Area, buffer: UnsafeBufferPointer<Channel>) throws {
 		guard let ref = tiffref else {
 			throw TIFFError.InvalidReference
 		}
 		guard mode == "w" else {
 			throw TIFFError.WrongMode
+		}
+		guard let pointer = buffer.baseAddress else {
+			throw LazyTIFFImageError.NoBaseAddress
 		}
 
 		let size = self.size
@@ -192,14 +196,13 @@ public class LazyTIFFImage<Channel> {
 		}
 
 		for line in 0..<area.size.height {
-			// print(line)
 			let yoffset = line + area.origin.y
-			// print(yoffset)
-			let src = buffer.advanced(by: ((line * area.size.width) + area.origin.x) * Int(attributes.samplesPerPixel))
+			let src = pointer.advanced(by: ((line * area.size.width) + area.origin.x) * Int(attributes.samplesPerPixel))
 
 			if area.origin.x == 0 && area.size.width == size.width {
 				// full width, so no need to compose data
-				guard TIFFWriteScanline(ref, src, UInt32(yoffset), 0) == 1  else {
+				let raw = UnsafeMutableRawPointer(mutating: src)
+				guard TIFFWriteScanline(ref, raw, UInt32(yoffset), 0) == 1  else {
 					throw TIFFError.WriteScanline
 				}
 			} else {
