@@ -94,8 +94,8 @@ public class GeoTIFFImage<Channel>: LazyTIFFImage<Channel> {
 		}
 	}
 
-	public override init(writingAt path: String, size: Size, samplesPerPixel: Int, hasAlpha: Bool) throws {
-		try super.init(writingAt: path, size: size, samplesPerPixel: samplesPerPixel, hasAlpha: hasAlpha)
+	public override init(writingAt path: String, size: Size, samplesPerPixel: Int, hasAlpha: Bool, useBigTIFF: Bool=false) throws {
+		try super.init(writingAt: path, size: size, samplesPerPixel: samplesPerPixel, hasAlpha: hasAlpha, useBigTIFF: useBigTIFF)
 		guard let ref = tiffref else {
 			throw TIFFError.InvalidReference
 		}

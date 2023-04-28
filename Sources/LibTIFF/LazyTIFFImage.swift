@@ -52,7 +52,7 @@ public class LazyTIFFImage<Channel> {
 		return Int(attributes.samplesPerPixel)
 	}
 
-	public private(set) var mode: String?
+	public private(set) var mode: String
 
 	public init(readingAt path: String) throws {
 		self.mode = "r"
@@ -68,10 +68,11 @@ public class LazyTIFFImage<Channel> {
 		}
 	}
 
-	public init(writingAt path: String, size: Size, samplesPerPixel: Int, hasAlpha: Bool) throws {
+	public init(writingAt path: String, size: Size, samplesPerPixel: Int, hasAlpha: Bool, useBigTIFF: Bool=false) throws {
 		self.mode = "w"
 		self.path = path
-		guard let ptr = TIFFOpen(path, mode) else {
+		let tiffmode = self.mode + (useBigTIFF ? "8" : "")
+		guard let ptr = TIFFOpen(path, tiffmode) else {
 			throw TIFFError.Open
 		}
 		self.tiffref = ptr
